@@ -36,7 +36,7 @@ def load_model():
     # Download model if not present
     if not os.path.exists(model_path):
         url = "https://drive.google.com/uc?id=1Dc4bGiKwU6Uur4yRDJ4aAHk4DPOOQQe-"
-        gdown.download(url, model_path, quiet=False)
+        gdown.download(url, model_path, quiet=False, fuzzy=True)
 
     model = ViTForImageClassification.from_pretrained(
         "google/vit-base-patch16-224",
