@@ -32,11 +32,19 @@ def load_model():
     import os
 
     model_path = "vit_lung_model_80_20.pth"
+    file_id = "1Dc4bGiKwU6Uur4yRDJ4aAHk4DPOOQQe-"
 
-    # Download model if not present
-    if not os.path.exists(model_path):
-        url = "https://drive.google.com/uc?id=1Dc4bGiKwU6Uur4yRDJ4aAHk4DPOOQQe-"
-        gdown.download(url, model_path, quiet=False, fuzzy=True)
+    # Always ensure a clean file (prevents corrupted/HTML downloads)
+    if os.path.exists(model_path):
+        os.remove(model_path)
+
+    # Download using file_id (more reliable than URL)
+    gdown.download(id=file_id, output=model_path, quiet=False)
+
+    # Safety check
+    if not os.path.exists(model_path) or os.path.getsize(model_path) < 5_000_000:
+        st.error("Model download failed or file is corrupted.")
+        st.stop()
 
     model = ViTForImageClassification.from_pretrained(
         "google/vit-base-patch16-224",
@@ -44,13 +52,9 @@ def load_model():
         ignore_mismatched_sizes=True
     )
 
-    model.load_state_dict(
-        torch.load(model_path, map_location=device)
-    )
-
+    model.load_state_dict(torch.load(model_path, map_location=device))
     model.to(device)
     model.eval()
-
     return model
 
 with st.spinner("Loading model..."):
